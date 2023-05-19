@@ -128,7 +128,7 @@ void send_data_to_socket(int socket, char* buffer, int bytes_to_send)
 {
   int total_bytes_sent = 0, bytes_sent_in_iteration = 0;
   do {
-    bytes_sent_in_iteration = send(socket, buffer, bytes_to_send - total_bytes_sent, 0);
+    bytes_sent_in_iteration = send(socket, buffer + total_bytes_sent, bytes_to_send - total_bytes_sent, 0);
     assert(bytes_sent_in_iteration != SOCKET_ERROR);
     total_bytes_sent += bytes_sent_in_iteration;
   } while (total_bytes_sent < bytes_to_send);
