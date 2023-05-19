@@ -51,9 +51,9 @@ int get_socket_port(int socket)
   return ntohs(sock_addr.sin_port);
 }
 
-int realloc_buffer(char** buffer, int original_buffer_size)
+int realloc_larger_buffer(char** buffer, int original_buffer_size, int new_buffer_size)
 {
-  int new_buffer_size = original_buffer_size * BUFF_SIZE_MULTIPLY_FACTOR;
+  assert(new_buffer_size > original_buffer_size);
   *buffer = (char*)realloc(*buffer, new_buffer_size);
   assert(*buffer != NULL);
   memset(*buffer + original_buffer_size, 0, new_buffer_size - original_buffer_size);
@@ -112,18 +112,21 @@ void wait_for_servers_connections(int* server_sockets, int server_socket, int nu
   }
 }
 
-int receive_data_from_socket(int socket, char** buffer, int buffer_size, unsigned int sub_string_appearances)
+int receive_data_from_socket(int socket, char** buffer, int buffer_size, unsigned int num_of_delim_until_stop)
 {
   int bytes_read_by_recv = 0, total_bytes_read = 0;
   int current_buff_len = buffer_size;
+  int new_buffer_len = 0;
   do {
     if (current_buff_len == total_bytes_read) {
-      current_buff_len = realloc_buffer(buffer, current_buff_len);
+      new_buffer_len = current_buff_len * BUFF_SIZE_MULTIPLY_FACTOR;
+      realloc_larger_buffer(buffer, current_buff_len, new_buffer_len);
+      current_buff_len = new_buffer_len;
     }
     bytes_read_by_recv = recv(socket, *buffer + total_bytes_read, current_buff_len - total_bytes_read, 0);
     assert(bytes_read_by_recv != SOCKET_ERROR);
     total_bytes_read += bytes_read_by_recv;
-  } while (count_sub_string_appearances(*buffer, HTTP_SEPARATOR) < sub_string_appearances);
+  } while (count_sub_string_appearances(*buffer, HTTP_SEPARATOR) < num_of_delim_until_stop);
 
   return total_bytes_read;
 }
