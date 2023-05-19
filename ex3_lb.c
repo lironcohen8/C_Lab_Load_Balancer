@@ -12,9 +12,9 @@
 #define NUM_SEPARATORS_CLIENT_TO_SERVER 1
 #define NUM_SEPARATORS_SERVER_TO_CLIENT 2
 
-typedef enum { CLIENT_TO_SERVER, SERVER_TO_CLIENT } forwared_socket_direction;
+typedef enum { CLIENT_TO_SERVER, SERVER_TO_CLIENT } forward_socket_direction;
 
-void forward_socket_data(int src_sock, int dest_sock, forwared_socket_direction direction)
+void forward_socket_data(int src_sock, int dest_sock, forward_socket_direction direction)
 {
   char* buffer = (char*)calloc(1, BASE_BUFFER_SIZE);
   assert(buffer != NULL);

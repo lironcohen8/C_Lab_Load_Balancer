@@ -6,7 +6,6 @@ from socket import *
 maximum_number_of_pending_connections = 1
 number_of_bytes_to_recv_at_a_time = 1024
 address_index_in_first_line_of_http_request = 1
-local_host_addr = '127.0.0.1' # todo : remoove ?
 counter_addr = '/counter'
 
 

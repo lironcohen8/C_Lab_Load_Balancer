@@ -13,10 +13,10 @@
 #define MIN_PORT_NUMBER 1024
 #define MAX_PORT_NUMBER 64000
 #define HTTP_SEPARATOR "\r\n\r\n"
-#define BUFF_SIZE_MULTIPLY 2
+#define BUFF_SIZE_MULTIPLY_FACTOR 2
 
 /* private functions */
-unsigned int count_sub_string_appearnces(char* string_to_search, const char* sub_string)
+unsigned int count_sub_string_appearances(char* string_to_search, const char* sub_string)
 {
   unsigned int count = 0;
   char* tmp = string_to_search;
@@ -49,6 +49,15 @@ int get_socket_port(int socket)
   socklen_t addr_size = sizeof(sock_addr);
   getsockname(socket, (struct sockaddr*)&sock_addr, &addr_size);
   return ntohs(sock_addr.sin_port);
+}
+
+int realloc_buffer(char** buffer, int original_buffer_size)
+{
+  int new_buffer_size = original_buffer_size * BUFF_SIZE_MULTIPLY_FACTOR;
+  *buffer = (char*)realloc(*buffer, new_buffer_size);
+  assert(*buffer != NULL);
+  memset(*buffer + original_buffer_size, 0, new_buffer_size - original_buffer_size);
+  return new_buffer_size;
 }
 
 /* public functions */
@@ -103,33 +112,28 @@ void wait_for_servers_connections(int* server_sockets, int server_socket, int nu
   }
 }
 
-int receive_data_from_socket(int socket, char** buffer, int buffer_size, unsigned int sub_string_appearnces)
+int receive_data_from_socket(int socket, char** buffer, int buffer_size, unsigned int sub_string_appearances)
 {
   int bytes_read_by_recv = 0, total_bytes_read = 0;
   int current_buff_len = buffer_size;
-  int old_buffer_len = 0;
   do {
     if (current_buff_len == total_bytes_read) {
-      old_buffer_len = current_buff_len;
-      current_buff_len *= BUFF_SIZE_MULTIPLY;
-      *buffer = (char*)realloc(*buffer, current_buff_len);
-      assert(*buffer != NULL);
-      memset(*buffer + old_buffer_len, 0, current_buff_len - old_buffer_len);
+      current_buff_len = realloc_buffer(buffer, current_buff_len);
     }
     bytes_read_by_recv = recv(socket, *buffer + total_bytes_read, current_buff_len - total_bytes_read, 0);
     assert(bytes_read_by_recv != SOCKET_ERROR);
     total_bytes_read += bytes_read_by_recv;
-  } while (count_sub_string_appearnces(*buffer, HTTP_SEPARATOR) < sub_string_appearnces);
+  } while (count_sub_string_appearances(*buffer, HTTP_SEPARATOR) < sub_string_appearances);
 
   return total_bytes_read;
 }
 
-void send_data_to_socket(int socket, char* buffer, int bytes_to_send)
+void send_data_to_socket(int socket, char* buffer, int num_of_bytes_to_send)
 {
   int total_bytes_sent = 0, bytes_sent_in_iteration = 0;
   do {
-    bytes_sent_in_iteration = send(socket, buffer + total_bytes_sent, bytes_to_send - total_bytes_sent, 0);
+    bytes_sent_in_iteration = send(socket, buffer + total_bytes_sent, num_of_bytes_to_send - total_bytes_sent, 0);
     assert(bytes_sent_in_iteration != SOCKET_ERROR);
     total_bytes_sent += bytes_sent_in_iteration;
-  } while (total_bytes_sent < bytes_to_send);
+  } while (total_bytes_sent < num_of_bytes_to_send);
 }
