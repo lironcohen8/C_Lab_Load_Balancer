@@ -64,20 +64,13 @@ int realloc_larger_buffer(char** buffer, int original_buffer_size, int new_buffe
 int create_socket_connection(int backlog)
 {
   int sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-  if (sock == SOCKET_ERROR) {
-    printf("Error at socket creation\n");
-    exit(1);
-  }
-
+  assert(sock != SOCKET_ERROR);
   struct sockaddr_in sock_addr;
   sock_addr.sin_family = AF_INET;
   sock_addr.sin_addr.s_addr = inet_addr(LOCAL_HOST);
   bind_socket_to_a_free_port(sock, sock_addr);
   int ret_val = listen(sock, backlog);
-  if (ret_val != 0) {
-    printf("Error at socket listening\n");
-    exit(1);
-  }
+  assert(ret_val != SOCKET_ERROR);
   return sock;
 }
 
@@ -85,10 +78,7 @@ void write_socket_port_to_file(int socket, char* file_name)
 {
   int port = get_socket_port(socket);
   FILE* file = fopen(file_name, "w");
-  if (file == NULL) {
-    printf("Error opening file %s\n", file_name);
-    exit(1);
-  }
+  assert(file != NULL);
   fprintf(file, "%d", port);
   fclose(file);
 }
@@ -98,10 +88,7 @@ int accept_connection_on_socket(int socket)
   struct sockaddr client_sock_addr;
   socklen_t addr_size = sizeof(client_sock_addr);
   int client_socket = accept(socket, &client_sock_addr, &addr_size);  // TODO: name may be confusing
-  if (client_socket == SOCKET_ERROR) {
-    printf("Error at socket accepting\n");
-    exit(1);
-  }
+  assert(client_socket != SOCKET_ERROR);
   return client_socket;
 }
 
