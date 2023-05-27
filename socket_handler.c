@@ -4,8 +4,11 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <sys/socket.h>
+
+#include "memory_utils.h"
+#include "socket_handler.h"
+#include "string_utils.h"
 
 #define SOCKET_ERROR -1
 // todo : verify this
@@ -16,18 +19,6 @@
 #define BUFF_SIZE_MULTIPLY_FACTOR 2
 
 /* private functions */
-unsigned int count_sub_string_appearances(char* string_to_search, const char* sub_string)
-{
-  unsigned int count = 0;
-  char* tmp = string_to_search;
-  while ((tmp = strstr(tmp, sub_string))) {
-    count++;
-    tmp++;
-  }
-
-  return count;
-}
-
 void bind_socket_to_a_free_port(int socket, struct sockaddr_in sock_addr)
 {
   while (true) {
@@ -49,15 +40,6 @@ int get_socket_port(int socket)
   socklen_t addr_size = sizeof(sock_addr);
   getsockname(socket, (struct sockaddr*)&sock_addr, &addr_size);
   return ntohs(sock_addr.sin_port);
-}
-
-int realloc_larger_buffer(char** buffer, int original_buffer_size, int new_buffer_size)
-{
-  assert(new_buffer_size > original_buffer_size);
-  *buffer = (char*)realloc(*buffer, new_buffer_size);
-  assert(*buffer != NULL);
-  memset(*buffer + original_buffer_size, 0, new_buffer_size - original_buffer_size);
-  return new_buffer_size;
 }
 
 /* public functions */
