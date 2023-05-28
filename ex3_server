@@ -7,11 +7,12 @@ maximum_number_of_pending_connections = 1
 number_of_bytes_to_recv_at_a_time = 1024
 address_index_in_first_line_of_http_request = 1
 counter_addr = '/counter'
+http_separator = '\r\n\r\n'
 
 
 def receive_http_request(server_socket):
     request_data = ""
-    while not request_data.endswith('\r\n\r\n'):
+    while not request_data.endswith(http_separator):
         request_data += server_socket.recv(number_of_bytes_to_recv_at_a_time)
     return request_data
 
@@ -25,8 +26,8 @@ def check_if_request_is_valid(request_data):
 def create_http_response(is_valid_request, num_of_client_requests):
     response_template = ('HTTP/1.{http_version} {status_code} {status_message}\r\n'
                          'Content-Type: text/html\r\n'
-                         'Content-Length: {content_length}\r\n\r\n'
-                         '{response_body}\r\n\r\n''')
+                         'Content-Length: {content_length}{separator}'
+                         '{response_body}{separator}''')
 
     if is_valid_request:
         body = str(num_of_client_requests)
@@ -35,7 +36,8 @@ def create_http_response(is_valid_request, num_of_client_requests):
             status_code=200,
             status_message='OK',
             content_length=len(body),
-            response_body=body
+            response_body=body,
+            separator = http_separator
         )
     else:
         body = '<html><head><title>Not Found</title></head><body>\r\n' \
@@ -53,7 +55,7 @@ def create_http_response(is_valid_request, num_of_client_requests):
 def send_http_response(response, server_socket):
     response_bytes = response.encode()
     bytes_sent = 0
-    while bytes_sent < len(response_bytes):  # TODO: Check if it's okay, I only saw a warning regarding C
+    while bytes_sent < len(response_bytes):
         bytes_sent += server_socket.send(response_bytes[bytes_sent:])
 
 
@@ -69,8 +71,6 @@ def run_server(port_number):
             num_of_client_requests += 1
         response = create_http_response(is_request_valid, num_of_client_requests)
         send_http_response(response, sock)
-
-    # TODO: understand how to call this, if needed. server_socket.close()
 
 
 if __name__ == "__main__":
