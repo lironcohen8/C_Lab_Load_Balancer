@@ -1,4 +1,4 @@
-#include "lb.h"
+#include "load_balancer.h"
 #include <stdbool.h>
 #include <stdlib.h>
 #include <time.h>
@@ -10,7 +10,7 @@ int main()
   setup_load_balancer(&lb);
 
   while (true) {
-  load_balancer_handle_client(&lb);
+    load_balancer_handle_client(&lb);
   }
 
   return 0;

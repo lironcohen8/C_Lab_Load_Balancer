@@ -7,6 +7,7 @@ maximum_number_of_pending_connections = 1
 number_of_bytes_to_recv_at_a_time = 1024
 address_index_in_first_line_of_http_request = 1
 counter_addr = '/counter'
+local_host = 'localhost'
 http_separator = '\r\n\r\n'
 
 
@@ -61,7 +62,7 @@ def send_http_response(response, server_socket):
 
 def run_server(port_number):
     sock = socket()
-    sock.connect(('localhost', port_number))
+    sock.connect((local_host, port_number))
 
     num_of_client_requests = 0
     while True:

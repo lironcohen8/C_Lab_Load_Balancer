@@ -11,7 +11,6 @@
 #include "string_utils.h"
 
 #define SOCKET_ERROR -1
-// todo : verify this
 #define LOCAL_HOST "127.0.0.1"
 #define MIN_PORT_NUMBER 1024
 #define MAX_PORT_NUMBER 64000
@@ -26,8 +25,7 @@ void bind_socket_to_a_free_port(int socket, struct sockaddr_in sock_addr)
     sock_addr.sin_port = htons(port);
     int enable = 1;
     socklen_t addr_size = sizeof(sock_addr);
-    setsockopt(socket, SOL_SOCKET, SO_REUSEADDR, &enable,
-               sizeof(enable));  // TODO: check that it won't ruin the "busy" port check
+    setsockopt(socket, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(enable));
     if (bind(socket, (const struct sockaddr*)&sock_addr, addr_size) == 0) {
       break;
     }
@@ -69,7 +67,7 @@ int accept_connection_on_socket(int socket)
 {
   struct sockaddr client_sock_addr;
   socklen_t addr_size = sizeof(client_sock_addr);
-  int client_socket = accept(socket, &client_sock_addr, &addr_size);  // TODO: name may be confusing
+  int client_socket = accept(socket, &client_sock_addr, &addr_size);
   assert(client_socket != SOCKET_ERROR);
   return client_socket;
 }
