@@ -11,7 +11,7 @@
 #define NUM_SEPARATORS_SERVER_TO_CLIENT 2
 
 /* private functions */
-void forward_socket_data(int src_sock, int dest_sock, forward_socket_direction direction)
+void forward_data(int src_sock, int dest_sock, forward_socket_direction direction)
 {
   char* buffer = (char*)calloc(1, BASE_BUFFER_SIZE);
   assert(buffer != NULL);
@@ -39,7 +39,7 @@ void load_balancer_handle_client(load_balancer_t* lb)
 {
   int current_server_socket = lb->active_server_sockets[lb->current_active_socket];
   int client_socket = accept_connection_on_socket(lb->http_socket);
-  forward_socket_data(client_socket, current_server_socket, CLIENT_TO_SERVER);
-  forward_socket_data(current_server_socket, client_socket, SERVER_TO_CLIENT);
+  forward_data(client_socket, current_server_socket, CLIENT_TO_SERVER);
+  forward_data(current_server_socket, client_socket, SERVER_TO_CLIENT);
   lb->current_active_socket = (lb->current_active_socket + 1) % NUMBER_OF_SERVERS;
 }
