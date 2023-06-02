@@ -1,14 +1,19 @@
 CFLAGS = -g -Wall -Wextra
 PROGRAM = ex3_lb
 CC = gcc
-GREP_TESTS_FOLDER = /a/home/cc/students/csguests/nimrodav/socket_ex
 
-$(PROGRAM): ex3_lb.o socket_handler.o
+$(PROGRAM): ex3_lb.o socket_handler.o string_utils.o memory_utils.o load_balancer.o
 	$(CC) -o $@ $^ $(CFLAGS)
 
-ex3_lb.o: socket_handler.h
+ex3_lb.o: ex3_lb.c load_balancer.h
 
-socket_handler.o: socket_handler.h
+socket_handler.o: socket_handler.c socket_handler.h string_utils.h memory_utils.h
+
+string_utils.o: string_utils.c string_utils.h
+
+memory_utils.o: memory_utils.c memory_utils.h
+
+load_balancer.o: load_balancer.c load_balancer.h socket_handler.h
 
 .PHONY: clean all test our_test
 
@@ -17,6 +22,3 @@ all: $(PROGRAM)
 
 clean:
 	-rm *.o $(PROGRAM)
-
-test:
-	@$(GREP_TESTS_FOLDER)/test.sh
